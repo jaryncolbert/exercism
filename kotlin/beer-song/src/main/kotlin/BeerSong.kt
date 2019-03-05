@@ -9,29 +9,28 @@ class BeerSong {
         }
 
         private fun verse(round: Int): String {
-            val bottles = when (round) {
-                0 -> "no more bottles"
-                1 -> "1 bottle"
-                else -> "$round bottles"
-            }
-
-            val nextBottles = when (round) {
-                0 -> "99 bottles"
-                1 -> "no more bottles"
-                2 -> "1 bottle"
-                else -> "${round - 1} bottles"
-            }
-
             val transitionMsg = when (round) {
                 0 -> "Go to the store and buy some more"
                 1 -> "Take it down and pass it around"
                 else -> "Take one down and pass it around"
             }
-
+            val bottles = getBottleRef(round)
 
             return "${bottles.capitalize()} of beer on the wall, $bottles of beer.\n" +
-                    "$transitionMsg, $nextBottles of beer on the wall.\n"
+                    "$transitionMsg, ${getBottleRef(round - 1)} of beer on the wall.\n"
         }
 
+        private fun getBottleRef(round: Int): String {
+            return when (round) {
+                -1 -> "99"
+                0 -> "no more"
+                else -> round.toString()
+            } + " " + pluralizeBottles(round)
+        }
+
+        private fun pluralizeBottles(round: Int): String {
+            return if (round == 1) "bottle" else "bottles"
+        }
     }
+
 }
