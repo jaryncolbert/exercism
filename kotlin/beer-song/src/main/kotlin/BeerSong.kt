@@ -1,9 +1,33 @@
 class BeerSong {
 
-    private open class Bar(var numBeers: Int,
-                           val transitionMessage: String = "Take one down and pass it around") {
+    private abstract class Bar(var numBeers: Int,
+                               val transitionMessage: String) {
 
-        open fun bottles(): String {
+        abstract fun bottles(): String
+        abstract fun takeOne(): Bar
+
+        fun singVerse(): String {
+            return "${bottles().capitalize()} of beer on the wall, ${bottles()} of beer.\n" +
+                    "$transitionMessage, ${takeOne().bottles()} of beer on the wall.\n"
+        }
+
+        companion object {
+
+            fun withBeers(numBeers: Int): Bar {
+                return when (numBeers) {
+                    0 -> EmptyBar()
+                    1 -> SingleBeerBar()
+                    else -> DefaultBar(numBeers)
+                }
+            }
+        }
+    }
+
+    private open class DefaultBar(numBeers: Int,
+                                  transitionMessage: String = "Take one down and pass it around") :
+            Bar(numBeers, transitionMessage) {
+
+        override fun bottles(): String {
             return numBeers.toString() + " " + contents()
         }
 
@@ -11,37 +35,24 @@ class BeerSong {
             return "bottles"
         }
 
-        open fun takeOne(): Bar {
-            if (numBeers == 2) {
-                return SingleBeerBar()
-            } else {
-                numBeers -= 1
-                return this
-            }
-        }
-    }
-
-    private class EmptyBar : Bar(0, "Go to the store and buy some more") {
-        override fun bottles(): String {
-            return "no more"
-        }
-
         override fun takeOne(): Bar {
-            return restock()
-        }
-
-        fun restock(): Bar {
-            return Bar(99)
+            return Bar.withBeers(numBeers - 1)
         }
     }
 
-    private class SingleBeerBar : Bar(1, "Take it down and pass it around") {
+    private class SingleBeerBar : DefaultBar(1, "Take it down and pass it around") {
         override fun contents(): String {
             return "bottle"
         }
+    }
+
+    private class EmptyBar : DefaultBar(0, "Go to the store and buy some more") {
+        override fun bottles(): String {
+            return "no more bottles"
+        }
 
         override fun takeOne(): Bar {
-            return EmptyBar()
+            return DefaultBar(99)
         }
     }
 
@@ -51,15 +62,7 @@ class BeerSong {
         fun verses(start: Int, stop: Int): String {
             require(stop <= start) { "Second value must be less than or equal to first value." }
 
-            return (start.downTo(stop)).joinToString("\n") {verse(it) }
-        }
-
-        private fun verse(numBeers: Int): String {
-            val bar = Bar(numBeers)
-            val bottles = bar.bottles()
-
-            return "${bottles.capitalize()} of beer on the wall, $bottles of beer.\n" +
-                    "${bar.transitionMessage}, ${bar.takeOne().bottles()} of beer on the wall.\n"
+            return (start.downTo(stop)).joinToString("\n") { Bar.withBeers(it).singVerse() }
         }
 
     }
