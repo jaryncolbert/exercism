@@ -1,4 +1,4 @@
-import java.text.DecimalFormat
+import java.math.RoundingMode
 
 class SpaceAge(age: Long) {
 
@@ -6,25 +6,37 @@ class SpaceAge(age: Long) {
 
     private val earthYears = age / 31557600.0
 
-    fun onEarth(): Double { return twoDecimals(earthYears) }
+    private enum class Planet(val year: Double) {
+        EARTH(1.0),
+        MERCURY(0.2408467),
+        VENUS(0.61519726),
+        MARS(1.8808158),
+        JUPITER(11.862615),
+        SATURN(29.447498),
+        URANUS(84.016846),
+        NEPTUNE(164.7913)
+    }
 
-    fun onMercury(): Double { return twoDecimals(earthYears / 0.2408467) }
+    fun onEarth(): Double { return getYearOn(Planet.EARTH) }
 
-    fun onVenus(): Double { return twoDecimals(earthYears / 0.61519726) }
+    fun onMercury(): Double { return getYearOn(Planet.MERCURY) }
 
-    fun onMars(): Double { return twoDecimals(earthYears / 1.8808158) }
+    fun onVenus(): Double { return getYearOn(Planet.VENUS) }
 
-    fun onJupiter(): Double { return twoDecimals(earthYears / 11.862615) }
+    fun onMars(): Double { return getYearOn(Planet.MARS) }
 
-    fun onSaturn(): Double { return twoDecimals(earthYears / 29.447498) }
+    fun onJupiter(): Double { return getYearOn(Planet.JUPITER) }
 
-    fun onUranus(): Double { return twoDecimals(earthYears / 84.016846) }
+    fun onSaturn(): Double { return getYearOn(Planet.SATURN) }
 
-    fun onNeptune(): Double { return twoDecimals(earthYears / 164.7913) }
+    fun onUranus(): Double { return getYearOn(Planet.URANUS) }
+
+    fun onNeptune(): Double { return getYearOn(Planet.NEPTUNE) }
     
-    private fun twoDecimals(number: Double): Double {
-        val format = DecimalFormat("#.##")
-        return format.format(number).toDouble()
+    private fun getYearOn(planet: Planet): Double {
+        return (earthYears / planet.year).toBigDecimal()
+                .setScale(2, RoundingMode.HALF_UP)
+                .toDouble()
     }
 
 }
